@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, xmlrpclib, argparse, string, logging
+import sys, argparse, string, logging
+import xmlrpc.client as xmlrpclib
 
 #
 # Logging
@@ -318,7 +319,7 @@ def Content(args):
 
 def Connect(args):
     wiki_url = args.wikiurl + "/rpc/xmlrpc"
-    xml_server = xmlrpclib.Server(wiki_url)
+    xml_server = xmlrpclib.ServerProxy(wiki_url)
     try:
         token = ConfluenceAuth(xml_server,args.username,args.password).login()
     except xmlrpclib.Fault as err:
@@ -352,8 +353,8 @@ def Actions(token,xml_server,args,content):
 
         elif args.action == "getpagesummary":
             page = ConfluencePage(token,xml_server,args.name,args.spacekey,content).get()
-            print args.delimiter.join((
-             page['id'], page['space'], page['parentId'], page['title'], page['url']))
+            print (args.delimiter.join((
+             page['id'], page['space'], page['parentId'], page['title'], page['url'])))
 
         elif args.action == "listpages":
             if args.spacekey == "":
@@ -363,8 +364,8 @@ def Actions(token,xml_server,args,content):
             for space in spaces:
                 all_pages = ConfluenceSpace(token,xml_server).get_all_pages(space['key'])
                 for page in all_pages:
-                    print args.delimiter.join((
-                     page['id'], page['space'], page['parentId'], page['title'], page['url']))
+                    print (args.delimiter.join((
+                     page['id'], page['space'], page['parentId'], page['title'], page['url'])))
 
         elif args.action == "removepage":
             removed_page = ConfluencePage(token,xml_server,args.name,args.spacekey,"").remove()
